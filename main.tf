@@ -61,3 +61,25 @@ resource "azurerm_virtual_network_peering" "B-to-A" {
   # use_remote_gateways = false
 
 }
+
+##################### NIC #####################
+resource "azurerm_network_interface" "nic" {
+  name                = "vm-nic"
+  location            = azurerm_virtual_network.B.location
+  resource_group_name = azurerm_virtual_network.B.resource_group_name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.B-subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.pip.id
+  }
+}
+
+####################### Public IP #######################
+resource "azurerm_public_ip" "pip" {
+  name                = "publicIP"
+  location            = azurerm_virtual_network.B.location
+  resource_group_name = azurerm_virtual_network.B.resource_group_name
+  allocation_method   = "Static"
+}

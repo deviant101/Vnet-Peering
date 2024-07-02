@@ -83,3 +83,36 @@ resource "azurerm_public_ip" "pip" {
   resource_group_name = azurerm_virtual_network.B.resource_group_name
   allocation_method   = "Static"
 }
+
+##################### Virtual Machine #####################
+resource "azurerm_linux_virtual_machine" "vm" {
+  name                            = "vm"
+  resource_group_name             = azurerm_virtual_network.B.resource_group_name
+  location                        = azurerm_virtual_network.B.location
+  size                            = "Standard_DS1_v2"
+  network_interface_ids           = [azurerm_network_interface.nic.id]
+  disable_password_authentication = false
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
+    version   = "latest"
+  }
+  computer_name  = var.hostname
+  admin_username = var.username
+  admin_password = var.password
+}
+
+output "my_vm_public_ip" {
+  value = azurerm_linux_virtual_machine.vm.public_ip_address
+}
+
+output "vm_private_ip" {
+  value = azurerm_linux_virtual_machine.vm.private_ip_address
+}
